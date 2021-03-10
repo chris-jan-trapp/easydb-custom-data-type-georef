@@ -1,7 +1,7 @@
 plugin:
   name: custom-data-type-georef
   version: 1.2
-  url: https://github.com/programmfabrik/easydb-custom-data-type-georef
+  url: https://github.com/chris-jan-trapp/easydb-custom-data-type-georef
   displayname:
     de-DE: georef-Verknüpfung
     en-US: georef-Referencing
@@ -28,3 +28,5 @@ custom_types:
           parameters:
             value:
               type: text
+python-2:
+  file: server/external_storage.py
