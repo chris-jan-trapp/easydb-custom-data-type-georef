@@ -5,6 +5,7 @@ from datetime import datetime as d
 section "Example (Server Callback)
 """
 
+
 def easydb_server_start(easydb_context):
     easydb_context.register_callback('db_pre_update', {'callback': 'dump_to_disk'})
 
@@ -22,5 +23,5 @@ def dump_to_disk(easydb_context, easydb_info):
             tmp.write(str(k) + ": " + str(v) + "\n")
         tmp.write("\n Identified payload:\n")
         json.dump(payload, tmp, indent=2)
-    return easydb_info
+    return easydb_context
 
