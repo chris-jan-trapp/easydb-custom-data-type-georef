@@ -23,5 +23,6 @@ def dump_to_disk(easydb_context, easydb_info):
             tmp.write(str(k) + ": " + str(v) + "\n")
         tmp.write("\n Identified payload:\n")
         json.dump(payload, tmp, indent=2)
+    payload[0]["teller"]["text"] += " modified"
     return payload
 
