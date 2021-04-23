@@ -13,5 +13,5 @@ def dump_to_disk(easydb_context, easydb_info):
         tmp.write("\n" + str(d.utcnow()) + "\n", "context:\n")
         json.dump(payload, tmp, indent=2)
         tmp.write("\ninfo:\n")
-        json.dump(dir(easydb_info))
+        json.dump(dir(easydb_info), tmp, indent=2)
     return payload
