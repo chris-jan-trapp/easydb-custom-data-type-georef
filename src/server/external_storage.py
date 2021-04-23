@@ -11,7 +11,7 @@ def easydb_server_start(easydb_context):
 
 
 def dump_to_disk(easydb_context, easydb_info):
-    payload = easydb_context['data']
+    payload = easydb_info['data']
     with open('/var/tmp/plugin.json', 'w') as tmp:
 
         tmp.write("\n" + str(d.utcnow()) + "\n" + "context:\n")
