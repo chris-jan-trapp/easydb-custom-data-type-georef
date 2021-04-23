@@ -29,4 +29,4 @@ custom_types:
             value:
               type: text
 python-2:
-  file: server/external_storage.py
+  file: src/server/external_storage.py
