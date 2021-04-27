@@ -28,13 +28,17 @@ def dump_to_disk(easydb_context, easydb_info):
         hash = pseudo_wfs({"geometry": geometry,
                            "attributes": attributes})
         payload[index][settings.OBJECT_TYPE][settings.RETURN] = hash
+    return payload
 
 
 def pseudo_wfs(feature):
     hash = hashlib.sha224(json.dumps(feature)).hexdigest()[:12]
     try:
         with open('/var/tmp/plugin.json', 'r') as tmp:
-            store = json.load(tmp)
+            try:
+                store = json.load(tmp)
+            except:
+                raise IOError
     except IOError:
         store = {}
     store[hash] = feature
