@@ -39,5 +39,5 @@ def pseudo_wfs(feature):
         store = {}
     store[hash] = feature
     with open('/var/tmp/plugin.json', 'w') as tmp:
-        json.dump(store, indent=2)
+        json.dump(store, tmp, indent=2)
     return hash
