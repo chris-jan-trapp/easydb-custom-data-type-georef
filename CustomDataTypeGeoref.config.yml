@@ -26,7 +26,8 @@ custom_types:
       schema:
         - name: mapbox_access_token
           parameters:
-            value:
+            value: sk.eyJ1IjoiY3QtZ2J2IiwiYSI6ImNrbnpyNW1lYjA4a20ydXA0YjY1ZTRtZGsifQ.LMSgD7BsC58iNiZK2yDX6Q
               type: text
 python-2:
   file: src/server/external_storage.py
+  
