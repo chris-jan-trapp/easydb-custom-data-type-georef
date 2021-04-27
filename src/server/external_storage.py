@@ -1,6 +1,6 @@
 import json
 from datetime import datetime as d
-from . import settings
+import settings
 import hashlib
 
 """This is modelled after https://docs.easydb.de/en/technical/plugins/
@@ -21,11 +21,13 @@ def dump_to_disk(easydb_context, easydb_info):
 
     for relevant_object in relevant_objects:
         index = payload.index(relevant_object)
-        geometry = relevant_object[settings.GEOMETRY]
-        attributes = dict([(attribute, relevant_object.get(attribute, None)) for attribute in settings.ATTRIBUTES])
+        unpacked = relevant_object[settings.OBJECT_TYPE]
+
+        geometry = unpacked[settings.GEOMETRY]
+        attributes = dict([(attribute, unpacked.get(attribute, None)) for attribute in settings.ATTRIBUTES])
         hash = pseudo_wfs({"geometry": geometry,
                            "attributes": attributes})
-        payload[index][settings.RETURN] = hash
+        payload[index][settings.OBJECT_TYPE][settings.RETURN] = hash
 
 
 def pseudo_wfs(feature):
