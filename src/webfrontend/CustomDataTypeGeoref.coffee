@@ -99,72 +99,17 @@ class CustomDataTypeGeoref extends CustomDataTypeWithCommons
 
     data = draw.getAll()
 
-    # if geojson-data exists yet
-    if cdata.conceptURI != '' && cdata.conceptName != '' && cdata.conceptURI != undefined && cdata.conceptName != undefined
-      geoJSON = JSON.parse(cdata.conceptURI)
-      map.on 'load', ->
-        map.addSource 'Georeferenzierung',
-          'type': 'geojson'
-          'data': geoJSON
-
-        #map.addSource 'teller',
-        #  'type': 'geojson',
-        #  'data': 'http://esx-80.gbv.de:8080/geoserver/ogc/features/collections/gbv:teller/items?f=json'
-
-        # für Polygone
-        if geoJSON.geometry.type == 'Polygon'
-          map.addLayer
-            'id': 'Georeferenzierung'
-            'type': 'fill'
-            'source': 'Georeferenzierung'
-            'interactive': true
-            'layout': {}
-            'paint':
-              'fill-color': '#C20000'
-              'fill-opacity': 0.5
-        # für Linien
-        if geoJSON.geometry.type == 'LineString'
-          map.addLayer
-            'id': 'Georeferenzierung'
-            'type': 'line'
-            'source': 'Georeferenzierung'
-            'interactive': true
-            'layout':
-              'line-join': 'round'
-              'line-cap': 'round'
-            'paint':
-              'line-color': '#C20000'
-              'line-width': 4
-        # für Punkte
-        if geoJSON.geometry.type == 'Point'
-          map.addLayer
-            'id': 'Georeferenzierung'
-            'type': 'symbol'
-            'source': 'Georeferenzierung'
-            'interactive': true
-            'layout':
-              'icon-image': 'embassy-15'
-              'text-field': ''
-              'text-font': [
-                'Open Sans Semibold'
-                'Arial Unicode MS Bold'
-              ]
-              'text-offset': [
-                0
-                0.6
-              ]
-              'text-anchor': 'top'
-        # get bounds of formlayer
-
-        map.fitBounds geojsonExtent(geoJSON), padding: 20
-
-        map.addLayer
+    map.on 'load', ->
+      map.addSource 'teller',
+        'type': 'geojson',
+        'data': 'http://esx-80.gbv.de:8080/geoserver/ogc/features/collections/gbv:teller/items?f=json'
+      map.addLayer
           'id': 'teller',
           'type': 'symbol',
           'source': 'teller'
           'layout':
             'icon-image': 'beer-11'
-        return
+      return
 
     # click on map
     map.on 'click', (e) ->
