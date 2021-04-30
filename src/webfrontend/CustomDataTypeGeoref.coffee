@@ -76,6 +76,10 @@ class CustomDataTypeGeoref extends CustomDataTypeWithCommons
         zoom: 5
     });
 
+    map.addSource('teller', {
+      type: 'geojson',
+      data: 'http://esx-80.gbv.de:8080/geoserver/ogc/features/collections/gbv:teller/items?f=json'
+    })
     # disable map rotation using right click + drag
     map.dragRotate.disable()
 
