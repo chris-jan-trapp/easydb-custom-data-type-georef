@@ -33,6 +33,7 @@ def easydb_server_start(easydb_context):
 
 
 def create_transaction(feature_type, feature):
+    print('building transaction')
     transaction = ET.Element("wfs:Transaction", **TRANSACTION_ATTRIBUTES)
     insert = ET.SubElement(transaction, "wfs:Insert")
     to_insert = ET.SubElement(insert, ":".join((TRANSACTION_ATTRIBUTES["xmlns:gbv"], feature_type)))
@@ -57,7 +58,7 @@ def dump_to_disk(easydb_context, easydb_info):
     for relevant_object in relevant_objects:
         index = payload.index(relevant_object)
         unpacked = relevant_object[settings.OBJECT_TYPE]
-
+        print("calling WFS with", settings.OBJECT_TYPE, unpacked)
         id = wfs(settings.OBJECT_TYPE, unpacked)
         payload[index][settings.OBJECT_TYPE][settings.RETURN] = id
     return payload
@@ -81,6 +82,7 @@ def pseudo_wfs(feature):
 
 def wfs(feature_type, feature):
     data = create_transaction(feature_type, feature)
+    print("Created XML:", data)
     response = requests.post(GEO_SERVER_URL,
                              data=data,
                              headers={"Content-type": "text/xml"})
@@ -89,6 +91,8 @@ def wfs(feature_type, feature):
         transaction_result = ET.fromstring(response.content)
         feature_id = transaction_result.find("**/ogc:FeatureId", RESPONSE_NAMESPACE)
         return feature_id.get('fid')
+    else:
+        print(response.content)
 
 
 if __name__ == '__main__':
