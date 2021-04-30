@@ -33,6 +33,7 @@ GEO_SERVER_URL = "http://geoserver:8080/geoserver/wfs"
 def easydb_server_start(easydb_context):
     easydb_context.register_callback('db_pre_update', {'callback': 'dump_to_wfs'})
     logging.basicConfig(filename="/var/tmp/plugin.log", level=logging.DEBUG)
+    logging.info("Loaded plugin")
 
 
 def create_transaction(feature_type, feature):
@@ -45,8 +46,8 @@ def create_transaction(feature_type, feature):
     found_at = ET.SubElement(to_insert, "found_at")
     point_property_type = ET.SubElement(found_at, 'gml:PointPropertyType', srsName="EPSG:4326")
     pos = ET.SubElement(point_property_type, 'gml:pos')
-    coordinates = feature['location']['mapPosition']['position']
-    pos.text = str(coordinates['lat']) + ' ' + str(coordinates['lng'])
+    coordinates = feature['found_at']['conceptURI']['geometry']['coordinates']
+    pos.text = str(coordinates[0]) + ' ' + str(coordinates[1])
 
     return ET.tostring(transaction)
 
@@ -69,6 +70,7 @@ def dump_to_wfs(easydb_context, easydb_info):
     except Exception as e:
         logging.error(str(e))
         logging.error(traceback.format_exc(e))
+        raise e
 
 
 def wfs(feature_type, feature):
