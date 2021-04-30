@@ -4,6 +4,8 @@ import settings
 import hashlib
 import xml.etree.ElementTree as ET
 import requests
+import logging
+import traceback
 
 """This is modelled after https://docs.easydb.de/en/technical/plugins/
 section "Example (Server Callback)
@@ -29,11 +31,12 @@ GEO_SERVER_URL = "http://geoserver:8080/geoserver/wfs"
 
 
 def easydb_server_start(easydb_context):
-    easydb_context.register_callback('db_pre_update', {'callback': 'dump_to_disk'})
+    easydb_context.register_callback('db_pre_update', {'callback': 'dump_to_wfs'})
+    logging.basicConfig(filename="/var/tmp/plugin.log", level=logging.DEBUG)
 
 
 def create_transaction(feature_type, feature):
-    print('building transaction')
+    logging.debug('building transaction')
     transaction = ET.Element("wfs:Transaction", **TRANSACTION_ATTRIBUTES)
     insert = ET.SubElement(transaction, "wfs:Insert")
     to_insert = ET.SubElement(insert, ":".join((TRANSACTION_ATTRIBUTES["xmlns:gbv"], feature_type)))
@@ -48,41 +51,29 @@ def create_transaction(feature_type, feature):
     return ET.tostring(transaction)
 
 
-def dump_to_disk(easydb_context, easydb_info):
-    payload = easydb_info['data']
-
-    relevant_objects = filter(lambda o: settings.OBJECT_TYPE in o.keys(), payload)
-    if not relevant_objects:
-        return payload
-
-    for relevant_object in relevant_objects:
-        index = payload.index(relevant_object)
-        unpacked = relevant_object[settings.OBJECT_TYPE]
-        print("calling WFS with", settings.OBJECT_TYPE, unpacked)
-        id = wfs(settings.OBJECT_TYPE, unpacked)
-        payload[index][settings.OBJECT_TYPE][settings.RETURN] = id
-    return payload
-
-
-def pseudo_wfs(feature):
-    hash = hashlib.sha224(json.dumps(feature)).hexdigest()[:12]
+def dump_to_wfs(easydb_context, easydb_info):
     try:
-        with open('/var/tmp/plugin.json', 'r') as tmp:
-            try:
-                store = json.load(tmp)
-            except:
-                raise IOError
-    except IOError:
-        store = {}
-    store[hash] = feature
-    with open('/var/tmp/plugin.json', 'w') as tmp:
-        json.dump(store, tmp, indent=2)
-    return hash
+        payload = easydb_info['data']
+
+        relevant_objects = filter(lambda o: settings.OBJECT_TYPE in o.keys(), payload)
+        if not relevant_objects:
+            return payload
+
+        for relevant_object in relevant_objects:
+            index = payload.index(relevant_object)
+            unpacked = relevant_object[settings.OBJECT_TYPE]
+            logging.debug("calling WFS with: " + settings.OBJECT_TYPE + str(unpacked))
+            id = wfs(settings.OBJECT_TYPE, unpacked)
+            payload[index][settings.OBJECT_TYPE][settings.RETURN] = id
+        return payload
+    except Exception as e:
+        logging.error(str(e))
+        logging.error(traceback.format_exc(e))
 
 
 def wfs(feature_type, feature):
     data = create_transaction(feature_type, feature)
-    print("Created XML:", data)
+    logging.debug("Created XML: " + data)
     response = requests.post(GEO_SERVER_URL,
                              data=data,
                              headers={"Content-type": "text/xml"})
@@ -92,7 +83,7 @@ def wfs(feature_type, feature):
         feature_id = transaction_result.find("**/ogc:FeatureId", RESPONSE_NAMESPACE)
         return feature_id.get('fid')
     else:
-        print(response.content)
+        logging.debug("Request failed with: " + str(response.content))
 
 
 if __name__ == '__main__':
