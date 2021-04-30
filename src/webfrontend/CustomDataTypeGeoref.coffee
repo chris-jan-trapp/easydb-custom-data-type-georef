@@ -107,10 +107,10 @@ class CustomDataTypeGeoref extends CustomDataTypeWithCommons
           'type': 'geojson'
           'data': geoJSON
 
-        map.addSource 'teller',
-          'type': 'geojson',
-          'data': 'http://esx-80.gbv.de:8080/geoserver/ogc/features/collections/gbv:teller/items?f=json'
-        
+        #map.addSource 'teller',
+        #  'type': 'geojson',
+        #  'data': 'http://esx-80.gbv.de:8080/geoserver/ogc/features/collections/gbv:teller/items?f=json'
+
         # für Polygone
         if geoJSON.geometry.type == 'Polygon'
           map.addLayer
