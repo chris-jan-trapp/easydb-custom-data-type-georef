@@ -46,7 +46,8 @@ def create_transaction(feature_type, feature):
     found_at = ET.SubElement(to_insert, "found_at")
     point_property_type = ET.SubElement(found_at, 'gml:PointPropertyType', srsName="EPSG:4326")
     pos = ET.SubElement(point_property_type, 'gml:pos')
-    coordinates = feature['found_at']['conceptURI']['geometry']['coordinates']
+    concept_uri = json.loads(feature['found_at']['conceptURI'])
+    coordinates = concept_uri['geometry']['coordinates']
     pos.text = str(coordinates[0]) + ' ' + str(coordinates[1])
 
     return ET.tostring(transaction)
