@@ -80,6 +80,11 @@ class CustomDataTypeGeoref extends CustomDataTypeWithCommons
       type: 'geojson',
       data: 'http://esx-80.gbv.de:8080/geoserver/ogc/features/collections/gbv:teller/items?f=json'
     })
+    map.addLayer({
+      'id': 'teller',
+      'type': 'circle',
+      'source': 'teller'
+    })
     # disable map rotation using right click + drag
     map.dragRotate.disable()
 
