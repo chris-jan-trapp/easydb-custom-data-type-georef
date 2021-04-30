@@ -37,7 +37,7 @@ def create_transaction(feature_type, feature):
     to_insert = ET.SubElement(insert, ":".join((TRANSACTION_ATTRIBUTES["xmlns:gbv"], feature_type)))
     text = ET.SubElement(to_insert, 'text')
     text.text = feature["text"]
-    found_at = ET.SubElement(to_insert)
+    found_at = ET.SubElement(to_insert, "found_at")
     point_property_type = ET.SubElement(found_at, 'gml:PointPropertyType', srsName="EPSG:4326")
     pos = ET.SubElement(point_property_type, 'gml:pos')
     coordinates = feature['location']['mapPosition']['position']
