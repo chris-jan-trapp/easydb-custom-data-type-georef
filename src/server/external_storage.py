@@ -24,7 +24,8 @@ TRANSACTION_ATTRIBUTES = {"version": "1.1.0",
 RESPONSE_NAMESPACE = {"wfs": "http://www.opengis.net/wfs",
                       "ogc":"http://www.opengis.net/ogc"
                       }
-GEO_SERVER_URL = "http://esx-80.gbv.de:8080/geoserver/wfs"
+GEO_SERVER_URL = "http://geoserver:8080/geoserver/wfs"
+#GEO_SERVER_URL = "http://esx-80.gbv.de:8080/geoserver/wfs"
 
 
 def easydb_server_start(easydb_context):
@@ -41,7 +42,7 @@ def create_transaction(feature_type, feature):
     point_property_type = ET.SubElement(found_at, 'gml:PointPropertyType', srsName="EPSG:4326")
     pos = ET.SubElement(point_property_type, 'gml:pos')
     coordinates = feature['location']['mapPosition']['position']
-    pos.text = str(coordinates['lat']) + ' ' + str(coordinates['lon'])
+    pos.text = str(coordinates['lat']) + ' ' + str(coordinates['lng'])
 
     return ET.tostring(transaction)
 
@@ -88,3 +89,63 @@ def wfs(feature_type, feature):
         transaction_result = ET.fromstring(response.content)
         feature_id = transaction_result.find("**/ogc:FeatureId", RESPONSE_NAMESPACE)
         return feature_id.get('fid')
+
+
+if __name__ == '__main__':
+    plate_xml = """<?xml version="1.0"?>
+         <wfs:Transaction version="1.1.0" service="WFS"
+                               xmlns="http://esx-80.gbv.de:8080/geoserver/gbv"
+                               xmlns:gbv="gbv"
+                               xmlns:gml="http://www.opengis.net/gml"
+                               xmlns:ogc="http://www.opengis.net/ogc"
+                               xmlns:wfs="http://www.opengis.net/wfs"
+                               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                               xsi:schemaLocation="http://esx-80.gbv.de:8080/geoserver/
+                               http://www.opengis.net/wfs ../wfs/1.1.0/WFS.xsd">
+           <wfs:Insert>
+             <gbv:teller>
+               <text>Moinsen!</text>
+               <found_at>
+                 <gml:PointPropertyType srsName="EPSG:4326">
+                   <gml:pos>-98.5485 24.2633</gml:pos> 
+                 </gml:PointPropertyType>
+               </found_at>
+             </gbv:teller>
+           </wfs:Insert>
+         </wfs:Transaction>
+         """
+    plate_json = """{
+    "_idx_in_objects": 1, 
+    "teller": {
+      "text": "Liebe!", 
+      "_id": null, 
+      "_version": 1, 
+      "location": {
+        "mapPosition": {
+          "position": {
+            "lat": 53.52725, 
+            "lng": 10.02173
+          }, 
+          "iconColor": "#b8bfc4", 
+          "iconName": "fa-map-marker"
+        }, 
+        "displayValue": {
+          "de-DE": "Whatevs", 
+          "en-US": ""
+        }, 
+        "_fulltext": {
+          "text": "Whatevs", 
+          "string": "Whatevs", 
+          "l10ntext": {
+            "de-DE": "Whatevs", 
+            "en-US": ""
+          }
+        }
+      }
+    }, 
+    "_mask": "_all_fields", 
+    "_objecttype": "teller"
+  }"""
+    plate = json.loads(plate_json)
+    id = wfs(settings.OBJECT_TYPE, plate[settings.OBJECT_TYPE])
+    print(id)
