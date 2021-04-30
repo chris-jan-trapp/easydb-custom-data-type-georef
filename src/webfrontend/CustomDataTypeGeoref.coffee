@@ -75,10 +75,6 @@ class CustomDataTypeGeoref extends CustomDataTypeWithCommons
         center: [9.935,51.5338]
         zoom: 5
     });
-    map.addSource('teller', {
-          type: 'geojson',
-          data: 'http://esx-80.gbv.de:8080/geoserver/ogc/features/collections/gbv:teller/items?f=json'
-        })
 
     # disable map rotation using right click + drag
     map.dragRotate.disable()
@@ -110,6 +106,11 @@ class CustomDataTypeGeoref extends CustomDataTypeWithCommons
         map.addSource 'Georeferenzierung',
           'type': 'geojson'
           'data': geoJSON
+
+        map.addSource 'teller',
+          'type': 'geojson',
+          'data': 'http://esx-80.gbv.de:8080/geoserver/ogc/features/collections/gbv:teller/items?f=json'
+        
         # für Polygone
         if geoJSON.geometry.type == 'Polygon'
           map.addLayer
