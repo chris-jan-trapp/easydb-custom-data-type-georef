@@ -75,6 +75,10 @@ class CustomDataTypeGeoref extends CustomDataTypeWithCommons
         center: [9.935,51.5338]
         zoom: 5
     });
+    map.addSource('teller', {
+          type: 'geojson',
+          data: 'http://esx-80.gbv.de:8080/geoserver/ogc/features/collections/gbv:teller/items?f=json'
+        })
 
     # disable map rotation using right click + drag
     map.dragRotate.disable()
@@ -152,15 +156,13 @@ class CustomDataTypeGeoref extends CustomDataTypeWithCommons
         # get bounds of formlayer
 
         map.fitBounds geojsonExtent(geoJSON), padding: 20
-        map.addSource('teller', {
-          type: 'geojson',
-          data: 'http://esx-80.gbv.de:8080/geoserver/ogc/features/collections/gbv:teller/items?f=json'
-        })
-        map.addLayer({
+
+        map.addLayer
           'id': 'teller',
-          'type': 'circle',
+          'type': 'symbol',
           'source': 'teller'
-        })
+          'layout':
+            'icon-image': 'beer-11'
         return
 
     # click on map
