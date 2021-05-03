@@ -102,7 +102,7 @@ class CustomDataTypeGeoref extends CustomDataTypeWithCommons
     map.on 'load', ->
       map.addSource 'teller',
         'type': 'geojson',
-        'data': 'http://esx-80.gbv.de:8080/geoserver/ogc/features/collections/gbv:teller/items?f=json'
+        'data': 'https://odysseus.gbv.de:8443/geoserver/ogc/features/collections/gbv:teller/items?f=application%2Fjson'
       map.addLayer
           'id': 'teller',
           'type': 'symbol',
