@@ -112,10 +112,12 @@ class CustomDataTypeGeoref extends CustomDataTypeWithCommons
 
 
     map.on 'load', ->
+      others_source = feature_source + others_filter
       map.addSource 'teller',
         'type': 'geojson',
-        'data': feature_source + others_filter
-        console.log 'Source added'
+        'data': others_source
+
+      console.log 'Source added from : ' + others_source
       map.addLayer
           'id': 'teller',
           'type': 'symbol',
