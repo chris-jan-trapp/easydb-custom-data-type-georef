@@ -50,7 +50,7 @@ class CustomDataTypeGeoref extends CustomDataTypeWithCommons
   ##########################################################################
   # initialisiere Karte
   __initMap: (cdata, cdata_form, layout, opts) ->
-
+    console.log "Map initialized"
     that = @
 
     mapbox_access_token = ''
@@ -114,7 +114,8 @@ class CustomDataTypeGeoref extends CustomDataTypeWithCommons
     map.on 'load', ->
       map.addSource 'teller',
         'type': 'geojson',
-        'data': 'https://odysseus.gbv.de:8443/geoserver/ogc/features/collections/gbv:teller/items?f=application%2Fjson' + others_filter
+        'data': feature_source + others_filter
+        console.log 'Source added'
       map.addLayer
           'id': 'teller',
           'type': 'symbol',
@@ -127,7 +128,7 @@ class CustomDataTypeGeoref extends CustomDataTypeWithCommons
       if subject_filter
         map.addSource 'subject',
           'type': 'geojson',
-          'data': 'https://odysseus.gbv.de:8443/geoserver/ogc/features/collections/gbv:teller/items?f=application%2Fjson' + subject_filter
+          'data': feature_source + subject_filter
         map.addLayer
           'id': 'subject',
           'type': 'symbol',
@@ -138,8 +139,10 @@ class CustomDataTypeGeoref extends CustomDataTypeWithCommons
             'icon-color': '#3afcc8'
 
     map.on 'draw.update', ->
-      map.getSource('teller').setData('https://odysseus.gbv.de:8443/geoserver/ogc/features/collections/gbv:teller/items?f=application%2Fjson' + others_filter)
-      
+      console.log 'redraw'
+      map.getSource('teller').setData(feature_source + others_filter)
+
+
     # click on map
     map.on 'click', (e) ->
       data = draw.getAll()
