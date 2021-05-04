@@ -108,7 +108,7 @@ class CustomDataTypeGeoref extends CustomDataTypeWithCommons
           'type': 'symbol',
           'source': 'teller'
           'layout':
-            'icon-image': 'beer-11'
+            'icon-image': 'beer-40'
 
     # click on map
     map.on 'click', (e) ->
