@@ -122,7 +122,7 @@ class CustomDataTypeGeoref extends CustomDataTypeWithCommons
           'layout':
             'icon-image': 'circle-15'
           'paint':
-            'fill-color': '#fc713'
+            'icon-color': '#fc713'
 
       if subject_filter
         map.addSource 'subject',
@@ -135,7 +135,7 @@ class CustomDataTypeGeoref extends CustomDataTypeWithCommons
           'layout':
             'icon-image': 'circle-15'
           'paint':
-            'fill-color': '#3afcc8'
+            'icon-color': '#3afcc8'
 
 
     # click on map
