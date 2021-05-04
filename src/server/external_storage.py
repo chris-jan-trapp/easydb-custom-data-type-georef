@@ -82,6 +82,7 @@ def wfs(feature_type, feature):
                              headers={"Content-type": "text/xml"})
 
     if response.status_code == 200:
+        logging.debug("Received: " + response.content)
         transaction_result = ET.fromstring(response.content)
         feature_id = transaction_result.find("**/ogc:FeatureId", RESPONSE_NAMESPACE)
         return feature_id.get('fid')
