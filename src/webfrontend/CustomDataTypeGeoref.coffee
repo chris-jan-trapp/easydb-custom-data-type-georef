@@ -137,7 +137,9 @@ class CustomDataTypeGeoref extends CustomDataTypeWithCommons
           'paint':
             'icon-color': '#3afcc8'
 
-
+    map.on 'draw.update', ->
+      map.getSource('teller').setData('https://odysseus.gbv.de:8443/geoserver/ogc/features/collections/gbv:teller/items?f=application%2Fjson' + others_filter)
+      
     # click on map
     map.on 'click', (e) ->
       data = draw.getAll()
