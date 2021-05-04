@@ -96,19 +96,47 @@ class CustomDataTypeGeoref extends CustomDataTypeWithCommons
     map.addControl(draw)
 
     map.dragPan.enable()
-
+    full_uri = 'https://odysseus.gbv.de:8443/geoserver/ogc/features/collections/gbv:teller/items?limit=1000000&filter=NOT%20IN%20%28%27teller.1231%27%29&filter-lang=cql-text&additionalProp1='
     data = draw.getAll()
+    feature_source = 'https://odysseus.gbv.de:8443/geoserver/ogc/features/collections/gbv:teller/itemsf=application%2Fjson'
+    others_filter = ""
+    subject_filter = ""
+    if cdata.feature_id
+      others_filter = "NOT IN ('" + cdata.feature_id + "')"
+      others_filter = "&filter=" + encodeURIComponent others_filter
+      others_filter = others_filter + "&filter-lang=cql-text"
+
+      subject_filter = "IN ('" + cdata.feature_id + "')"
+      subject_filter = "&filter=" + encodeURIComponent others_filter
+      subject_filter = others_filter + "&filter-lang=cql-text"
+
 
     map.on 'load', ->
       map.addSource 'teller',
         'type': 'geojson',
-        'data': 'https://odysseus.gbv.de:8443/geoserver/ogc/features/collections/gbv:teller/items?f=application%2Fjson'
+        'data': 'https://odysseus.gbv.de:8443/geoserver/ogc/features/collections/gbv:teller/items?f=application%2Fjson' + others_filter
       map.addLayer
           'id': 'teller',
           'type': 'symbol',
           'source': 'teller'
           'layout':
             'icon-image': 'circle-15'
+          'paint':
+            'fill-color': '#fc713'
+
+      if subject_filter
+        map.addSource 'subject',
+          'type': 'geojson',
+          'data': 'https://odysseus.gbv.de:8443/geoserver/ogc/features/collections/gbv:teller/items?f=application%2Fjson' + subject_filter
+        map.addLayer
+          'id': 'subject',
+          'type': 'symbol',
+          'source': 'teller'
+          'layout':
+            'icon-image': 'circle-15'
+          'paint':
+            'fill-color': '#3afcc8'
+
 
     # click on map
     map.on 'click', (e) ->
