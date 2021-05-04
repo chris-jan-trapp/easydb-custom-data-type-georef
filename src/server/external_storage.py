@@ -64,9 +64,12 @@ def dump_to_wfs(easydb_context, easydb_info):
         for relevant_object in relevant_objects:
             index = payload.index(relevant_object)
             unpacked = relevant_object[settings.OBJECT_TYPE]
-            logging.debug("calling WFS with: " + settings.OBJECT_TYPE + str(unpacked))
-            id = wfs(settings.OBJECT_TYPE, unpacked)
-            payload[index][settings.OBJECT_TYPE][settings.RETURN] = id
+            if settings.GEOMETRY in unpacked.keys():
+                logging.debug("calling WFS with: " + settings.OBJECT_TYPE + str(unpacked))
+                id = wfs(settings.OBJECT_TYPE, unpacked)
+                payload[index][settings.OBJECT_TYPE][settings.RETURN] = id
+            else:
+                logging.debug("Skipping WFS for: " + settings.OBJECT_TYPE + str(unpacked))
         return payload
     except Exception as e:
         logging.error(str(e))

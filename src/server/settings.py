@@ -1,6 +1,6 @@
 OBJECT_TYPE = "teller"
 
-GEOMETRY = "location"
+GEOMETRY = "found_at"
 ATTRIBUTES = ["text", ]
 
 RETURN = "feature_id"
