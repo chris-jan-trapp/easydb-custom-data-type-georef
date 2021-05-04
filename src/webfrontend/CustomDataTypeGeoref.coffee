@@ -98,7 +98,7 @@ class CustomDataTypeGeoref extends CustomDataTypeWithCommons
     map.dragPan.enable()
     full_uri = 'https://odysseus.gbv.de:8443/geoserver/ogc/features/collections/gbv:teller/items?limit=1000000&filter=NOT%20IN%20%28%27teller.1231%27%29&filter-lang=cql-text&additionalProp1='
     data = draw.getAll()
-    feature_source = 'https://odysseus.gbv.de:8443/geoserver/ogc/features/collections/gbv:teller/itemsf=application%2Fjson'
+    feature_source = 'https://odysseus.gbv.de:8443/geoserver/ogc/features/collections/gbv:teller/items?f=application%2Fjson'
     others_filter = ""
     subject_filter = ""
     if cdata.feature_id
