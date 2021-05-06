@@ -62,14 +62,19 @@ def dump_to_wfs(easydb_context, easydb_info):
             return payload
 
         for relevant_object in relevant_objects:
+            logging.debug('Handling relevant object: ' + settings.OBJECT_TYPE + str(unpacked))
             index = payload.index(relevant_object)
             unpacked = relevant_object[settings.OBJECT_TYPE]
-            if settings.GEOMETRY in unpacked.keys():
-                logging.debug("calling WFS with: " + settings.OBJECT_TYPE + str(unpacked))
-                id = wfs(settings.OBJECT_TYPE, unpacked)
+            keys = unpacked.keys()
+            has_geometry = settings.GEOMETRY in keys
+            created = "_id" in keys
+            if created:
+                logging.debug("Attempting POST")
+                id = wfs(settings.OBJECT_TYPE, unpacked, requests.post)
                 payload[index][settings.OBJECT_TYPE][settings.RETURN] = id
             else:
-                logging.debug("Skipping WFS for: " + settings.OBJECT_TYPE + str(unpacked))
+                logging.debug("Attempting PUT")
+                logging.debug(dir(easydb_context))
         return payload
     except Exception as e:
         logging.error(str(e))
@@ -77,12 +82,12 @@ def dump_to_wfs(easydb_context, easydb_info):
         raise e
 
 
-def wfs(feature_type, feature):
+def wfs(feature_type, feature, method):
     data = create_transaction(feature_type, feature)
     logging.debug("Created XML: " + data)
-    response = requests.post(GEO_SERVER_URL,
-                             data=data,
-                             headers={"Content-type": "text/xml"})
+    response = method(GEO_SERVER_URL,
+                      data=data,
+                      headers={"Content-type": "text/xml"})
 
     if response.status_code == 200:
         logging.debug("Received: " + response.content)
