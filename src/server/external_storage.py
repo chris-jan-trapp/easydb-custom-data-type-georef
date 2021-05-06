@@ -62,9 +62,9 @@ def dump_to_wfs(easydb_context, easydb_info):
             return payload
 
         for relevant_object in relevant_objects:
-            logging.debug('Handling relevant object: ' + settings.OBJECT_TYPE + str(unpacked))
             index = payload.index(relevant_object)
             unpacked = relevant_object[settings.OBJECT_TYPE]
+            logging.debug('Handling relevant object: ' + settings.OBJECT_TYPE + str(unpacked))
             keys = unpacked.keys()
             has_geometry = settings.GEOMETRY in keys
             created = "_id" in keys
