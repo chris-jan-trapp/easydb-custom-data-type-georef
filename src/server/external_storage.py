@@ -67,7 +67,7 @@ def dump_to_wfs(easydb_context, easydb_info):
             logging.debug('Handling relevant object: ' + settings.OBJECT_TYPE + str(unpacked))
             keys = unpacked.keys()
             has_geometry = settings.GEOMETRY in keys
-            created = "_id" in keys
+            created = "_id" not in keys
             if created:
                 logging.debug("Attempting POST")
                 id = wfs(settings.OBJECT_TYPE, unpacked, requests.post)
