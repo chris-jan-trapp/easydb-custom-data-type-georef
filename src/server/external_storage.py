@@ -74,6 +74,7 @@ def dump_to_wfs(easydb_context, easydb_info):
                 payload[index][settings.OBJECT_TYPE][settings.RETURN] = id
             else:
                 logging.debug("Attempting PUT")
+                logging.debug(help(easydb_context.search))
                 logging.debug(easydb_context.search(unpacked['_id']))
 
         return payload
