@@ -107,7 +107,7 @@ def get_wfs_id(edb_id, context):
               "bool": "must"}
     session = context.get_session()
     session_id = session['user']['user']['login']
-    logging.debug(context.searc("user", session_id, json.dumps(search)))
+    logging.debug(context.search("user", session_id, json.dumps(search)))
 
 
 if __name__ == '__main__':
