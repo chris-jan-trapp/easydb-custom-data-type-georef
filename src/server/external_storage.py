@@ -75,7 +75,7 @@ def dump_to_wfs(easydb_context, easydb_info):
             else:
                 logging.debug("Attempting PUT")
                 wfs_id = get_wfs_id(unpacked['_id'], easydb_context)
-                # logging.debug(easydb_context.search(unpacked['_id']))
+
 
         return payload
     except Exception as e:
@@ -101,13 +101,16 @@ def wfs(feature_type, feature, method):
 
 
 def get_wfs_id(edb_id, context):
-    search = {"type": "in",
-              "in": edb_id,
-              "fields": ["_system_object_id"],
-              "bool": "must"}
+    query = {"search": {
+        "type": "in",
+        "bool": "must",
+        "objecttype": "teller",
+        "in": [edb_id],
+        "fields": ["_system_object_id"]
+        }}
     session = context.get_session()
     session_id = session['user']['user']['_id']
-    logging.debug(context.search("user", session_id, json.dumps(search)))
+    logging.debug(context.search("user", session_id, json.dumps(query)))
 
 
 if __name__ == '__main__':
