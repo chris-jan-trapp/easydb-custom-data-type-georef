@@ -96,7 +96,7 @@ def dump_to_wfs(easydb_context, easydb_info):
                 logging.debug("Got: " + str(wfs_id))
                 data = update_transaction(settings.OBJECT_TYPE, unpacked, wfs_id)
                 logging.debug(data)
-                response = requests.put(GEO_SERVER_URL, data=data, headers={"Content-type": "text/xml"})
+                response = requests.post(GEO_SERVER_URL, data=data, headers={"Content-type": "text/xml"})
 
         return payload
     except Exception as e:
