@@ -103,6 +103,7 @@ def wfs(feature_type, feature, method):
 
 def get_wfs_id(object_name, edb_id, context):
     sql = "select from " + object_name + ' where "id:pkey"=' + str(edb_id) + ";"
+    logging.debug(sql)
     db_cursor = context.get_db_cursor()
     db_cursor.execute(sql)
     if db_cursor.rowcount:
