@@ -56,9 +56,10 @@ def create_transaction(feature_type, feature):
 def update_transaction(feature_type, feature, feature_id):
     logging.debug('building update transaction')
     transaction = ET.Element("wfs:Transaction", **TRANSACTION_ATTRIBUTES)
-
-    update = ET.SubElement(transaction, "wfs:Update")
+    type_name = "gbv:" + feature_type
+    update = ET.SubElement(transaction, "wfs:Update", typeName=type_name)
     populated_fields = filter(lambda k: k in feature.keys(), settings.ATTRIBUTES)
+    logging.debug("fields: " + str(feature.keys()) + str(populated_fields))
     for field in populated_fields:
         property = ET.SubElement(update, "wfs:Property")
         name = ET.SubElement(property, "wfs:Name")
