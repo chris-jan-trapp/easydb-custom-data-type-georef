@@ -94,7 +94,7 @@ def dump_to_wfs(easydb_context, easydb_info):
                 logging.debug("Attempting PUT")
                 wfs_id = get_wfs_id(settings.OBJECT_TYPE, unpacked['_id'], easydb_context)
                 logging.debug("Got: " + str(wfs_id))
-                data = update_transaction(settings.OBJECT_TYPE, relevant_object, wfs_id)
+                data = update_transaction(settings.OBJECT_TYPE, unpacked, wfs_id)
                 logging.debug(data)
                 response = requests.put(GEO_SERVER_URL, data=data, headers={"Content-type": "text/xml"})
 
