@@ -74,7 +74,8 @@ def dump_to_wfs(easydb_context, easydb_info):
                 payload[index][settings.OBJECT_TYPE][settings.RETURN] = id
             else:
                 logging.debug("Attempting PUT")
-                wfs_id = get_wfs_id(unpacked['_id'], easydb_context)
+                wfs_id = get_wfs_id('teller', unpacked['_id'], easydb_context)
+                logging.debug("Got: " + str(wfs_id))
 
 
         return payload
@@ -100,17 +101,12 @@ def wfs(feature_type, feature, method):
         logging.debug("Request failed with: " + str(response.content))
 
 
-def get_wfs_id(edb_id, context):
-    query = {"search": {
-        "type": "in",
-        "bool": "must",
-        "objecttype": "teller",
-        "in": [edb_id],
-        "fields": ["_system_object_id"]
-        }}
-    session = context.get_session()
-    session_id = session['user']['user']['_id']
-    logging.debug(context.search("user", session_id, json.dumps(query)))
+def get_wfs_id(object_name, edb_id, context):
+    sql = "select from " + object_name + ' where "id:pkey"=' + str(edb_id) + ";"
+    db_cursor = context.get_db_cursor()
+    db_cursor.execute(sql)
+    if db_cursor.rowcount:
+        return db_cursor.fetchone()
 
 
 if __name__ == '__main__':
