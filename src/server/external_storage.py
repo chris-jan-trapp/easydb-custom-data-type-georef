@@ -6,7 +6,7 @@ import xml.etree.ElementTree as ET
 import requests
 import logging
 import traceback
-
+from wfs_client import WFSClient
 """This is modelled after https://docs.easydb.de/en/technical/plugins/
 section "Example (Server Callback)
 """
@@ -23,52 +23,20 @@ TRANSACTION_ATTRIBUTES = {"version": "1.1.0",
                                                    http://www.opengis.net/wfs
                                                    ../wfs/1.1.0/WFS.xsd"""
                           }
-RESPONSE_NAMESPACE = {"wfs": "http://www.opengis.net/wfs",
-                      "ogc":"http://www.opengis.net/ogc"
-                      }
-GEO_SERVER_URL = "http://geoserver:8080/geoserver/wfs"
+
+
 #GEO_SERVER_URL = "http://esx-80.gbv.de:8080/geoserver/wfs"
+WFS = WFSClient(settings.GEO_SERVER_URL,
+                TRANSACTION_ATTRIBUTES,
+                settings.OBJECT_TYPE,
+                settings.ATTRIBUTES,
+                settings.GEOMETRY)
 
 
 def easydb_server_start(easydb_context):
     easydb_context.register_callback('db_pre_update', {'callback': 'dump_to_wfs'})
     logging.basicConfig(filename="/var/tmp/plugin.log", level=logging.DEBUG)
     logging.info("Loaded plugin")
-
-
-def create_transaction(feature_type, feature):
-    logging.debug('building insert transaction')
-    transaction = ET.Element("wfs:Transaction", **TRANSACTION_ATTRIBUTES)
-    insert = ET.SubElement(transaction, "wfs:Insert")
-    to_insert = ET.SubElement(insert, ":".join((TRANSACTION_ATTRIBUTES["xmlns:gbv"], feature_type)))
-    text = ET.SubElement(to_insert, 'text')
-    text.text = feature["text"]
-    found_at = ET.SubElement(to_insert, "found_at")
-    point_property_type = ET.SubElement(found_at, 'gml:PointPropertyType', srsName="EPSG:4326")
-    pos = ET.SubElement(point_property_type, 'gml:pos')
-    concept_uri = json.loads(feature['found_at']['conceptURI'])
-    coordinates = concept_uri['geometry']['coordinates']
-    pos.text = str(coordinates[0]) + ' ' + str(coordinates[1])
-
-    return ET.tostring(transaction)
-
-
-def update_transaction(feature_type, feature, feature_id):
-    logging.debug('building update transaction')
-    transaction = ET.Element("wfs:Transaction", **TRANSACTION_ATTRIBUTES)
-    type_name = "gbv:" + feature_type
-    update = ET.SubElement(transaction, "wfs:Update", typeName=type_name)
-    populated_fields = filter(lambda k: k in feature.keys(), settings.ATTRIBUTES)
-    logging.debug("fields: " + str(feature.keys()) + str(populated_fields))
-    for field in populated_fields:
-        property = ET.SubElement(update, "wfs:Property")
-        name = ET.SubElement(property, "wfs:Name")
-        name.text = field
-        value = ET.SubElement(property, "wfs:Value")
-        value.text = feature[field]
-    selector = ET.SubElement(update, "ogc:Filter")
-    ET.SubElement(selector, "ogc:FeatureId", fid=feature_id)
-    return ET.tostring(transaction)
 
 
 def dump_to_wfs(easydb_context, easydb_info):
@@ -87,38 +55,21 @@ def dump_to_wfs(easydb_context, easydb_info):
             has_geometry = settings.GEOMETRY in keys
             created = unpacked.get("_id") is None
             if created and has_geometry:
-                logging.debug("Attempting POST")
-                id = wfs(settings.OBJECT_TYPE, unpacked, requests.post)
+                logging.debug("Attempting CREATE")
+                id = WFS.create_feature(unpacked)
                 payload[index][settings.OBJECT_TYPE][settings.RETURN] = id
             else:
-                logging.debug("Attempting PUT")
+                logging.debug("Attempting UPDATE")
                 wfs_id = get_wfs_id(settings.OBJECT_TYPE, unpacked['_id'], easydb_context)
-                logging.debug("Got: " + str(wfs_id))
-                data = update_transaction(settings.OBJECT_TYPE, unpacked, wfs_id)
+                data = WFS.update_feature(unpacked, wfs_id)
                 logging.debug(data)
-                response = requests.post(GEO_SERVER_URL, data=data, headers={"Content-type": "text/xml"})
+
 
         return payload
     except Exception as e:
         logging.error(str(e))
         logging.error(traceback.format_exc(e))
         raise e
-
-
-def wfs(feature_type, feature, method):
-    data = create_transaction(feature_type, feature)
-    logging.debug("Created XML: " + data)
-    response = method(GEO_SERVER_URL,
-                      data=data,
-                      headers={"Content-type": "text/xml"})
-
-    if response.status_code == 200:
-        logging.debug("Received: " + response.content)
-        transaction_result = ET.fromstring(response.content)
-        feature_id = transaction_result.find("**/ogc:FeatureId", RESPONSE_NAMESPACE)
-        return feature_id.get('fid')
-    else:
-        logging.debug("Request failed with: " + str(response.content))
 
 
 def get_wfs_id(object_name, edb_id, context):
@@ -186,5 +137,3 @@ if __name__ == '__main__':
     "_objecttype": "teller"
   }"""
     plate = json.loads(plate_json)
-    id = wfs(settings.OBJECT_TYPE, plate[settings.OBJECT_TYPE])
-    print(id)
