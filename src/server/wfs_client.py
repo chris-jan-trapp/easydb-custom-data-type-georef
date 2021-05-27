@@ -19,7 +19,7 @@ class WFSClient:
         transaction = ET.Element("wfs:Transaction", **self.transaction_attributes)
         insert = ET.SubElement(transaction, "wfs:Insert")
         to_insert = ET.SubElement(insert, ":".join((self.transaction_attributes["xmlns:gbv"], self.feature_type)))
-        for field in WFSClient.get_fields(feature):
+        for field in self.get_fields(feature):
             node = ET.SubElement(to_insert, field)
             node.text = feature.get(field)
         if self.geometry_field in feature.keys():
@@ -30,7 +30,7 @@ class WFSClient:
         transaction = ET.Element("wfs:Transaction", self.transaction_attributes)
         type_name = "gbv:" + self.feature_type
         update = ET.SubElement(transaction, "wfs:Update", typeName=type_name)
-        for field in WFSClient.get_fields(feature, self.fields):
+        for field in self.get_fields(feature):
             property = ET.SubElement(update, "wfs:Property")
             name = ET.SubElement(property, "wfs:Name")
             name.text = field
@@ -40,10 +40,8 @@ class WFSClient:
         ET.SubElement(selector, "ogc:FeatureId", fid=feature_id)
         return ET.tostring(transaction)
 
-
-    @classmethod
-    def get_fields(cls, feature, fields):
-        populated_fields = filter(lambda k: k in feature.keys(), fields)
+    def get_fields(self, feature):
+        populated_fields = filter(lambda k: k in feature.keys(), self.fields)
         return populated_fields
 
     def get_gml(self, feature):
