@@ -37,7 +37,7 @@ def easydb_server_start(easydb_context):
 
 
 def create_transaction(feature_type, feature):
-    logging.debug('building transaction')
+    logging.debug('building insert transaction')
     transaction = ET.Element("wfs:Transaction", **TRANSACTION_ATTRIBUTES)
     insert = ET.SubElement(transaction, "wfs:Insert")
     to_insert = ET.SubElement(insert, ":".join((TRANSACTION_ATTRIBUTES["xmlns:gbv"], feature_type)))
@@ -50,6 +50,23 @@ def create_transaction(feature_type, feature):
     coordinates = concept_uri['geometry']['coordinates']
     pos.text = str(coordinates[0]) + ' ' + str(coordinates[1])
 
+    return ET.tostring(transaction)
+
+
+def update_transaction(feature_type, feature, feature_id):
+    logging.debug('building update transaction')
+    transaction = ET.Element("wfs:Transaction", **TRANSACTION_ATTRIBUTES)
+
+    update = ET.SubElement(transaction, "wfs:Update")
+    populated_fields = filter(settings.ATTRIBUTES, lambda k: k in feature.keys())
+    for field in populated_fields:
+        property = ET.SubElement(update, "wfs:Property")
+        name = ET.SubElement(property, "wfs:Name")
+        name.text = field
+        value = ET.SubElement(property, "wfs:Value")
+        value.text = feature[field]
+    selector = ET.SubElement(update, "ogc:Filter")
+    ET.SubElement(selector, "ogc:FeatureId", fid=feature_id)
     return ET.tostring(transaction)
 
 
@@ -74,9 +91,11 @@ def dump_to_wfs(easydb_context, easydb_info):
                 payload[index][settings.OBJECT_TYPE][settings.RETURN] = id
             else:
                 logging.debug("Attempting PUT")
-                wfs_id = get_wfs_id('teller', unpacked['_id'], easydb_context)
+                wfs_id = get_wfs_id(settings.OBJECT_TYPE, unpacked['_id'], easydb_context)
                 logging.debug("Got: " + str(wfs_id))
-
+                data = update_transaction(settings.OBJECT_TYPE, relevant_object, wfs_id)
+                logging.debug(data)
+                response = requests.put(GEO_SERVER_URL, data=data, headers={"Content-type": "text/xml"})
 
         return payload
     except Exception as e:
@@ -107,7 +126,7 @@ def get_wfs_id(object_name, edb_id, context):
     db_cursor = context.get_db_cursor()
     db_cursor.execute(sql)
     if db_cursor.rowcount:
-        return db_cursor.fetchone()
+        return db_cursor.fetchone()["feature_id"]
 
 
 if __name__ == '__main__':
