@@ -58,7 +58,7 @@ def update_transaction(feature_type, feature, feature_id):
     transaction = ET.Element("wfs:Transaction", **TRANSACTION_ATTRIBUTES)
 
     update = ET.SubElement(transaction, "wfs:Update")
-    populated_fields = filter(settings.ATTRIBUTES, lambda k: k in feature.keys())
+    populated_fields = filter(lambda k: k in feature.keys(), settings.ATTRIBUTES)
     for field in populated_fields:
         property = ET.SubElement(update, "wfs:Property")
         name = ET.SubElement(property, "wfs:Name")
