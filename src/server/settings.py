@@ -4,3 +4,4 @@ GEOMETRY = "found_at"
 ATTRIBUTES = ["text", ]
 
 RETURN = "feature_id"
+CONVERSION_URL = "http://converter:5000/gml/"

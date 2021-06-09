@@ -1,11 +1,13 @@
 import xml.etree.ElementTree as ET
 import requests
 import json
+import settings
 
 
 class WFSClient:
     RESPONSE_NAMESPACE = {"wfs": "http://www.opengis.net/wfs",
-                          "ogc": "http://www.opengis.net/ogc"
+                          "ogc": "http://www.opengis.net/ogc",
+                          "gml": "http://www.opengis.net/gml"
                           }
 
     def __init__(self, server_url, transaction_attributes, object_type, fields, geometry_field):
@@ -45,13 +47,17 @@ class WFSClient:
         return populated_fields
 
     def get_gml(self, feature):
-        geometry = ET.Element(self.geometry_field)
-        point_property_type = ET.SubElement(geometry, 'gml:PointPropertyType', srsName="EPSG:4326")
-        pos = ET.SubElement(point_property_type, 'gml:pos')
-        concept_uri = json.loads(feature[self.geometry_field]['conceptURI'])
-        coordinates = concept_uri['geometry']['coordinates']
-        pos.text = str(coordinates[0]) + ' ' + str(coordinates[1])
-        return geometry
+        geometry_node = ET.Element(self.geometry_field)
+        geojson = feature[self.geometry_field]['conceptURI']['geometry']
+
+        response = requests.get(settings.CONVERSION_URL, json=geojson)
+        if response.status_code == 200:
+            gml = response.content
+            geometry_node.append(ET.fromstring(gml, WFSClient.RESPONSE_NAMESPACE))
+            return geometry_node
+
+        else:
+            raise ValueError("Converter returned: " + response.content)
 
     def post_transaction(self, data):
         return requests.post(self.server_url, data=data, headers={"Content-type": "text/xml"})
