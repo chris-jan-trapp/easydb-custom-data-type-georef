@@ -49,6 +49,8 @@ class WFSClient:
         return populated_fields
 
     def get_gml(self, feature):
+        for prefix, uri in WFSClient.RESPONSE_NAMESPACE.items():
+            ET.register_namespace(prefix, uri)
         geometry_node = ET.Element(self.geometry_field)
 
         concept = json.loads(feature[self.geometry_field]['conceptURI'])
