@@ -51,6 +51,9 @@ class WFSClient:
     def get_gml(self, feature):
         geometry_node = ET.Element(self.geometry_field)
         logging.debug("getting gml for: " + str(feature))
+        logging.debug("Geofield:" + str(feature[self.geometry_field]))
+        logging.debug("ConceptURI: " + str(feature[self.geometry_field]['conceptURI']))
+        logging.debug("Geometry: " + str(feature[self.geometry_field]['conceptURI']['geometry']))
         geojson = feature[self.geometry_field]['conceptURI']['geometry']
 
         response = requests.get(settings.CONVERSION_URL, json=geojson)
