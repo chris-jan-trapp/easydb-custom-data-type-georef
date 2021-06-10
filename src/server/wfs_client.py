@@ -58,7 +58,7 @@ class WFSClient:
         if response.status_code == 200:
             gml = response.content
             logging.debug("Converter returned: " + gml + '\n' + str(type(gml)))
-            geometry_node.append(ET.fromstring(gml, WFSClient.RESPONSE_NAMESPACE))
+            geometry_node.append(ET.fromstring(gml))
             return geometry_node
 
         else:
