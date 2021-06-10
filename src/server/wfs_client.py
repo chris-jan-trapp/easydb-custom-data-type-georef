@@ -50,13 +50,14 @@ class WFSClient:
 
     def get_gml(self, feature):
         geometry_node = ET.Element(self.geometry_field)
-        
+
         concept = json.loads(feature[self.geometry_field]['conceptURI'])
         geojson = concept['geometry']
 
         response = requests.get(settings.CONVERSION_URL, json=geojson)
         if response.status_code == 200:
             gml = response.content
+            logging.debug("Converter returned: " + gml + '\n' + type(gml))
             geometry_node.append(ET.fromstring(gml, WFSClient.RESPONSE_NAMESPACE))
             return geometry_node
 
