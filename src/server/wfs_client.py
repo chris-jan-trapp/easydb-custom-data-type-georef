@@ -1,6 +1,7 @@
 import xml.etree.ElementTree as ET
 import requests
 import json
+import logging
 import settings
 
 
@@ -16,6 +17,7 @@ class WFSClient:
         self.feature_type = object_type
         self.fields = fields
         self.geometry_field = geometry_field
+        logging.basicConfig(filename="/var/tmp/plugin.log", level=logging.DEBUG)
 
     def get_create_xml(self, feature):
         transaction = ET.Element("wfs:Transaction", **self.transaction_attributes)
@@ -48,6 +50,7 @@ class WFSClient:
 
     def get_gml(self, feature):
         geometry_node = ET.Element(self.geometry_field)
+        logging.debug("getting gml for: " + str(feature))
         geojson = feature[self.geometry_field]['conceptURI']['geometry']
 
         response = requests.get(settings.CONVERSION_URL, json=geojson)
