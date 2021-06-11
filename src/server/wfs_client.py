@@ -66,24 +66,24 @@ class WFSClient:
             raise ValueError("Converter returned: " + response.content)
 
     def post_transaction(self, data):
-        return requests.post(self.server_url, data=data, headers={"Content-type": "text/xml"})
+        response = requests.post(self.server_url, data=data, headers={"Content-type": "text/xml"})
+        if response.status_code != 200:
+            raise ValueError("Server Error " + str(response.status_code) + ": " + response.content)
+        transaction_result = ET.fromstring(response.content)
+        exception = transaction_result.find("**/ows:Exception", WFSClient.RESPONSE_NAMESPACE)
+        if exception:
+            raise ValueError(exception.find("ExceptionText", WFSClient.RESPONSE_NAMESPACE).text)
+        return transaction_result
 
     def create_feature(self, feature):
         data = self.get_create_xml(feature)
         logging.debug("POSTing to WFS: " + str(data))
-        response = self.post_transaction(data)
+        result = self.post_transaction(data)
 
-        if response.status_code == 200:
-            logging.debug("WFS returned 200 and " + str(response.content))
-            transaction_result = ET.fromstring(response.content)
-            feature_id = transaction_result.find("**/ogc:FeatureId", WFSClient.RESPONSE_NAMESPACE)
-            return feature_id.get('fid')
-        else:
-            raise ValueError("Create failed with: " + str(response.content))
+        feature_id = result.find("**/ogc:FeatureId", WFSClient.RESPONSE_NAMESPACE)
+        return feature_id.get('fid')
+
 
     def update_feature(self, feature, feature_id):
         data = self.get_update_xml(feature, feature_id)
         response = self.post_transaction(data)
-
-        if not response.status_code == 200:
-            raise ValueError("Update failed wit: " + str(response.content))
