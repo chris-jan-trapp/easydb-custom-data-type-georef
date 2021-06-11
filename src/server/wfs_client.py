@@ -71,9 +71,11 @@ class WFSClient:
 
     def create_feature(self, feature):
         data = self.get_create_xml(feature)
+        logging.debug("POSTing to WFS: " + str(data))
         response = self.post_transaction(data)
 
         if response.status_code == 200:
+            logging.debug("WFS returned 200 and " + str(response.content))
             transaction_result = ET.fromstring(response.content)
             feature_id = transaction_result.find("**/ogc:FeatureId", WFSClient.RESPONSE_NAMESPACE)
             return feature_id.get('fid')
