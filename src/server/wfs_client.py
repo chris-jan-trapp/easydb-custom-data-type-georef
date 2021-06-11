@@ -73,9 +73,9 @@ class WFSClient:
             raise ValueError("Server Error " + str(response.status_code) + ": " + response.content)
         logging.debug(response.content)
         transaction_result = ET.fromstring(response.content)
-        exception = transaction_result.find("**/ows:Exception", WFSClient.RESPONSE_NAMESPACE)
+        exception = transaction_result.find("ows:Exception", WFSClient.RESPONSE_NAMESPACE)
         if exception:
-            raise ValueError(exception.find("ExceptionText", WFSClient.RESPONSE_NAMESPACE).text)
+            raise ValueError(exception.find("ows:ExceptionText", WFSClient.RESPONSE_NAMESPACE).text)
         return transaction_result
 
     def create_feature(self, feature):
