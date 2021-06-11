@@ -71,6 +71,7 @@ class WFSClient:
         response = requests.post(self.server_url, data=data, headers={"Content-type": "text/xml"})
         if response.status_code != 200:
             raise ValueError("Server Error " + str(response.status_code) + ": " + response.content)
+        logging.debug(response.content)
         transaction_result = ET.fromstring(response.content)
         exception = transaction_result.find("**/ows:Exception", WFSClient.RESPONSE_NAMESPACE)
         if exception:
