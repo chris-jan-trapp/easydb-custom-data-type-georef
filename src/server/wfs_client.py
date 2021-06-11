@@ -7,8 +7,7 @@ import settings
 
 class WFSClient:
     RESPONSE_NAMESPACE = {"wfs": "http://www.opengis.net/wfs",
-                          "ogc": "http://www.opengis.net/ogc",
-                          "gml": "http://www.opengis.net/gml"
+                          "ogc": "http://www.opengis.net/ogc"
                           }
 
     def __init__(self, server_url, transaction_attributes, object_type, fields, geometry_field):
