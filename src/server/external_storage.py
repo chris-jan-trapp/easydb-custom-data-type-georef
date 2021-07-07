@@ -43,6 +43,7 @@ def easydb_server_start(easydb_context):
 def redirect_to_servicer(easydb_context, easydb_info):
     session = easydb_context.get_session()
     data = easydb_info['data']
+    logging.info("\n".join(["Redirecting:", str(session), str(data)]))
     response = requests.post("http://" + SERVICER_URL + "/dump", json={'session': session, data: data})
     logging.info("Servicer says: " + str(response.content))
     return response.json()
