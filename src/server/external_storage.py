@@ -1,11 +1,8 @@
 import json
-from datetime import datetime as d
 import settings
-import hashlib
-import xml.etree.ElementTree as ET
-import requests
 import logging
 import traceback
+import requests
 from wfs_client import WFSClient
 """This is modelled after https://docs.easydb.de/en/technical/plugins/
 section "Example (Server Callback)
@@ -32,11 +29,23 @@ WFS = WFSClient(settings.GEO_SERVER_URL,
                 settings.ATTRIBUTES,
                 settings.GEOMETRY)
 
+SERVICER_URL = "servicer:5000"
+
 
 def easydb_server_start(easydb_context):
     easydb_context.register_callback('db_pre_update', {'callback': 'dump_to_wfs'})
+    easydb_context.register_callback('db_pre_update', {'callback': 'redirect_to_servicer'})
+
     logging.basicConfig(filename="/var/tmp/plugin.log", level=logging.DEBUG)
     logging.info("Loaded plugin")
+
+
+def redirect_to_servicer(easydb_context, easydb_info):
+    ctx = {'session': {'id': easydb_context.session_id, 'token': easydb_context.token}}
+    data = easydb_info['data']
+    response = requests.post("http://" + SERVICER_URL + "/dump", json={'context': ctx, data: data})
+    logging.info("Servicer says: " + str(response.content))
+    return response.json()
 
 
 def dump_to_wfs(easydb_context, easydb_info):
