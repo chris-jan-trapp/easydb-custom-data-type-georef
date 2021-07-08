@@ -33,7 +33,7 @@ SERVICER_URL = "servicer:5000"
 
 
 def easydb_server_start(easydb_context):
-    easydb_context.register_callback('db_pre_update', {'callback': 'dump_to_wfs'})
+    # easydb_context.register_callback('db_pre_update', {'callback': 'dump_to_wfs'})
     easydb_context.register_callback('db_pre_update', {'callback': 'redirect_to_servicer'})
 
     logging.basicConfig(filename="/var/tmp/plugin.log", level=logging.DEBUG)
