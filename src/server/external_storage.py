@@ -47,7 +47,9 @@ def redirect_to_servicer(easydb_context, easydb_info):
                              json={'session': session, "info": easydb_info},
                              headers={'Content-type': 'application/json'})
     logging.info("Servicer says: " + str(response.content))
-    return response.json()
+    data = response.json()['data']
+    logging.info("Servicer data: " + json.dumps(data, indent=2))
+    return data
 
 
 def dump_to_wfs(easydb_context, easydb_info):
