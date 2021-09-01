@@ -31,9 +31,8 @@ def redirect_to_servicer(easydb_context, easydb_info):
     logging.info("Servicer data: " + json.dumps(data, indent=2))
     return data
 
-def catch_post_update(easydb_context, easydb_info):
-    session = easydb_context.get_session()
-    logging.info("\n".join(["Post update:", str(session), str(easydb_info)]))
-    return easydb_info
+def catch_post_update(*args):
+    logging.info("\n".join(["Post update:", str(args)]))
+    return args
 
 
