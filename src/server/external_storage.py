@@ -39,7 +39,7 @@ def catch_post_update(*args):
 def minimal_callback(easydb_context, easydb_info):
     try:
         # Do stuff
-        logging.info('Got info: ' + easydb_info)
+        logging.info('Got info: ' + str(easydb_info))
     except Exception as exception:
         logging.error(str(exception))
     finally:
