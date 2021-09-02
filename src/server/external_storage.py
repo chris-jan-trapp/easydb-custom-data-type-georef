@@ -17,9 +17,9 @@ class ServicerClient:
         else:
             raise ValueError('Protocol information required in servicer url (e.g. "http:...")')
     
-    def redirect(self, easydb_context, endpoint, **kwargs):
+    def redirect(self, endpoint, easydb_context, easydb_info):
         session = easydb_context.get_session()
-        data = kwargs.get('data')
+        data = easydb_info('data')
         try:
             logging.info("\n".join(["Redirecting:", endpoint, str(session), str(data)]))
 
@@ -49,8 +49,8 @@ def easydb_server_start(easydb_context):
 
 
 
-def submit_to_wfs(easydb_context, **kwargs):
-    return client.redirect(easydb_context, '/pre-update', kwargs)
+def submit_to_wfs(easydb_context, easydb_info):
+    return client.redirect('/pre-update', easydb_context, easydb_info)
 
 
 
