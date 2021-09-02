@@ -19,7 +19,7 @@ class ServicerClient:
     
     def redirect(self, endpoint, easydb_context, easydb_info):
         session = easydb_context.get_session()
-        data = easydb_info('data')
+        data = easydb_info.get('data')
         try:
             logging.info("\n".join(["Redirecting:", endpoint, str(session), str(data)]))
 
