@@ -11,7 +11,7 @@ section "Example (Server Callback)
 SERVICER_URL = "http://servicer:5000"
 
 class ServicerClient:
-    def __init__(self, url) -> None:
+    def __init__(self, url):
         if url.startswith('http'):
             self.url = url
         else:
