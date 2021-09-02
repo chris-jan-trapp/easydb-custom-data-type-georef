@@ -8,32 +8,50 @@ from wfs_client import WFSClient
 section "Example (Server Callback)
 """
 
-SERVICER_URL = "servicer:5000"
+SERVICER_URL = "http://servicer:5000"
 
+class ServicerClient:
+    def __init__(self, url) -> None:
+        if url.startswith('http'):
+            self.url = url
+        else:
+            raise ValueError('Protocol information required in servicer url (e.g. "http:...")')
+    
+    def redirect(self, easydb_context, endpoint, **kwargs):
+        session = easydb_context.get_session()
+        data = kwargs.get('data')
+        try:
+            logging.info("\n".join(["Redirecting:", endpoint, str(session), str(data)]))
+
+            response = requests.post(self.url + endpoint,
+                                    json={'session': session, "data": data},
+                                    headers={'Content-type': 'application/json'})
+            
+            if response.ok:
+                data = response.json()['data']
+                logging.debug("Servicer returned data: " + json.dumps(data, indent=2))
+            else:
+                logging.error("Servicer failed with: " + str(response.content))  
+        except Exception as exception:
+            logging.error(str(exception))
+        finally:
+            return data
+
+client = ServicerClient(SERVICER_URL)
 
 def easydb_server_start(easydb_context):
-    # easydb_context.register_callback('db_pre_update', {'callback': 'dump_to_wfs'})
+    easydb_context.register_callback('db_pre_update', {'callback': 'submit_to_wfs'})
     # easydb_context.register_callback('db_pre_update', {'callback': 'redirect_to_servicer'})
-    easydb_context.register_callback('db_post_update_one', {'callback': 'minimal_callback'})
+    # easydb_context.register_callback('db_post_update_one', {'callback': 'minimal_callback'})
 
     logging.basicConfig(filename="/var/tmp/plugin.log", level=logging.DEBUG)
     logging.info("Loaded plugin")
 
 
-def redirect_to_servicer(easydb_context, easydb_info):
-    session = easydb_context.get_session()
-    logging.info("\n".join(["Redirecting:", str(session), str(easydb_info)]))
-    response = requests.post("http://" + SERVICER_URL + "/pre-update",
-                             json={'session': session, "info": easydb_info},
-                             headers={'Content-type': 'application/json'})
-    logging.info("Servicer says: " + str(response.content))
-    data = response.json()['data']
-    logging.info("Servicer data: " + json.dumps(data, indent=2))
-    return data
 
-def catch_post_update(*args):
-    logging.info("\n".join(["Post update:", str(args)]))
-    return args
+def submit_to_wfs(easydb_context, **kwargs):
+    return client.redirect(easydb_context, '/pre-update', **kwargs)
+
 
 
 def minimal_callback(easydb_context, easydb_info):
