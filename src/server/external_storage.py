@@ -50,7 +50,7 @@ def easydb_server_start(easydb_context):
 
 
 def submit_to_wfs(easydb_context, **kwargs):
-    return client.redirect(easydb_context, '/pre-update', **kwargs)
+    return client.redirect(easydb_context, '/pre-update', kwargs)
 
 
 
