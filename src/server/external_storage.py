@@ -53,7 +53,7 @@ def submit_to_wfs(easydb_context, easydb_info):
     return client.redirect('/pre-update', easydb_context, easydb_info)
 
 def extract_shapefiles(easydb_context, easydb_info):
-    return client.redirect('post_update', easydb_context, easydb_info)
+    return client.redirect('/post-update', easydb_context, easydb_info)
 
 def minimal_callback(easydb_context, easydb_info):
     try:
