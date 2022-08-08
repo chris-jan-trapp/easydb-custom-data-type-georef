@@ -42,7 +42,7 @@ client = ServicerClient(SERVICER_URL)
 def easydb_server_start(easydb_context):
     easydb_context.register_callback('db_pre_update', {'callback': 'submit_to_wfs'})
     # easydb_context.register_callback('db_pre_update', {'callback': 'redirect_to_servicer'})
-    # easydb_context.register_callback('db_post_update_one', {'callback': 'minimal_callback'})
+    easydb_context.register_callback('db_post_update_one', {'callback': 'extract_shapefiles'})
 
     logging.basicConfig(filename="/var/tmp/plugin.log", level=logging.DEBUG)
     logging.info("Loaded plugin")
@@ -52,7 +52,8 @@ def easydb_server_start(easydb_context):
 def submit_to_wfs(easydb_context, easydb_info):
     return client.redirect('/pre-update', easydb_context, easydb_info)
 
-
+def extract_shapefiles(easydb_context, easydb_info):
+    return client.redirect('post_update', easydb_context, easydb_info)
 
 def minimal_callback(easydb_context, easydb_info):
     try:
